@@ -1,20 +1,26 @@
-import { createSlice } from '@reduxjs/toolkit'
 
-export const appSlice = createSlice({
-  name: 'app',
-  initialState: {
-    user: undefined
-  },
-  reducers: {
-    login: (state, action) => {
-      state.user = action.payload
-    },
-    logout: (state) => {
-      state.user = undefined
-    },
-  },
-})
+import { AUTHENTICATE, LOGOUT } from '../actions/appslice';
 
-export const { login, logout } = appSlice.actions
 
-export default appSlice.reducer
+const initialState = {
+  token: null,
+  user: null,
+  allUsers: [],
+};
+
+export default (state = initialState, action) => {
+  switch (action.type) {
+    case AUTHENTICATE:
+      return {
+        ...state,
+        user: action.user,
+      };
+    case LOGOUT:
+      return {
+        ...initialState,
+        didTryAutoLogin: true,
+      };
+    default:
+      return state;
+  }
+};
