@@ -1,12 +1,39 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import PersonCard from '../../components/card';
 import './list.css';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { useCallback } from 'react';
 
 function List() {
+  const user = useSelector((state) => state.user.user);
+  const [patients, setPatients] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+
+
+  useEffect(() => {
+    (async () => {
+      if (!user) return
+
+      const response = await fetch(`http://localhost:5122/${user.role === 'Doctor' ? 'Patient' : 'Patron'}?` + new URLSearchParams({
+        doctorId: user.userId,
+        ...(searchQuery && { searchQuery })
+      }), {
+        method: "GET", headers: {
+          'Content-Type': 'application/json'
+        },
+      })
+      if (response.status === 404) setPatients([])
+      if (response.status !== 200) return
+
+      setPatients(await response.json())
+    })()
+  }, [user, searchQuery])
+
+
   return (
     <div
       style={{
@@ -65,8 +92,18 @@ function List() {
         </div>
       </div>
 
+
+
       <div
         style={{
+          height: 55,
+          position: 'relative',
+          marginBottom: '80px',
+          marginTop: '80px',
+          width: '410px',
+        }}
+      >
+        <Form.Control style={{
           height: 55,
           width: '100%',
           display: 'flex',
@@ -74,8 +111,6 @@ function List() {
           maxWidth: '410px',
           paddingLeft: 16,
           paddingRight: 16,
-          marginBottom: '80px',
-          marginTop: '80px',
           paddingTop: 9,
           paddingBottom: 9,
           background: 'white',
@@ -83,24 +118,15 @@ function List() {
           border: '1px #DEE2E6 solid',
           justifyContent: 'flex-start',
           alignItems: 'center',
-        }}
-      >
-        <div
-          style={{
-            color: '#ADB5BD',
-            fontSize: 16,
-            fontFamily: 'Inter',
-            fontWeight: '400',
-            marginRight: 'auto',
-          }}
-        >
-          Знайти пацінєта
-        </div>
+        }} type="email" placeholder="Знайти пацінєта" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+
         <img
           src={require('../../assets/search.png')}
-          style={{ width: 16, height: 16 }}
+          style={{ width: 16, height: 16, position: 'absolute', right: 16, top: 20 }}
         />
       </div>
+
+      {patients.length === 0 && <div style={{ fontSize: 24, fontFamily: 'Inter', fontWeight: '600', color: '#212529', alignSelf: 'center' }}>Нічого не знайдено</div>}
 
       <div
         style={{
@@ -109,45 +135,19 @@ function List() {
         }}
         className='grid-container'
       >
-        <PersonCard
-          name={'Анна Ковальчук'}
-          subtitile={
-            "Some quick example text to build on the card title and make up the bulk of the card's content."
-          }
-        />
-        <PersonCard
-          name={'Анна Ковальчук'}
-          subtitile={
-            "Some quick example text to build on the card title and make up the bulk of the card's content."
-          }
-        />
-        <PersonCard
-          name={'Анна Ковальчук'}
-          subtitile={
-            "Some quick example text to build on the card title and make up the bulk of the card's content."
-          }
-        />
-        <PersonCard
-          name={'Анна Ковальчук'}
-          subtitile={
-            "Some quick example text to build on the card title and make up the bulk of the card's content."
-          }
-        />
-        <PersonCard
-          name={'Анна Ковальчук'}
-          subtitile={
-            "Some quick example text to build on the card title and make up the bulk of the card's content."
-          }
-        />
-        <PersonCard
-          name={'Анна Ковальчук'}
-          subtitile={
-            "Some quick example text to build on the card title and make up the bulk of the card's content."
-          }
-        />
+        {patients.map((item) => {
+          return (
+            <PersonCard
+              id={item}
+              name={item.name + ' ' + item.surname}
+              subtitile={item.diagnose}
+            />
+          );
+        })}
+
       </div>
 
-      <div
+      {patients.length ? <div
         style={{
           width: 284,
           height: 40,
@@ -222,7 +222,7 @@ function List() {
             style={{ transform: 'rotate(180deg)' }}
           />
         </div>
-      </div>
+      </div> : <div />}
     </div>
   );
 }

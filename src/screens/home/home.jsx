@@ -4,9 +4,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './home.css';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 function Home() {
   const navigate = useNavigate();
+  const user = useSelector((state) => state.user.user);
 
   return (
     <div
@@ -25,18 +27,18 @@ function Home() {
     >
       <img
         id='main-img'
-        src={require('../../assets/CardImgOverlay.png')}
+        src={require(`../../assets/${user.role === "Doctor" ? "Card" : ""}ImgOverlay.png`)}
         style={{ width: '30%' }}
         onClick={() => navigate('/list')}
       />
       <img
         id='main-img'
-        src={require('../../assets/CardImgOverlay-1.png')}
+        src={require(`../../assets/${user.role === "Doctor" ? "Card" : ""}ImgOverlay-1.png`)}
         style={{ width: '30%' }}
       />
       <img
         id='main-img'
-        src={require('../../assets/CardImgOverlay-2.png')}
+        src={require(`../../assets/${user.role === "Doctor" ? "Card" : ""}ImgOverlay-2.png`)}
         style={{ width: '30%' }}
       />
     </div>

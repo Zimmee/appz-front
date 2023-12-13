@@ -1,21 +1,22 @@
 .grid-container {
-    /**
+  /**
      * User input values.
      */
-    --grid-layout-gap: 30px;
-    --grid-column-count: 3;
-    --grid-item--min-width: 410px;
-  
-    /**
+  --grid-layout-gap: 30px;
+  --grid-column-count: 3;
+  --grid-item--min-width: 410px;
+
+  /**
      * Calculated values.
      */
-    
-    --gap-count: calc(var(--grid-column-count) - 1);
-    --total-gap-width: calc(var(--gap-count) * var(--grid-layout-gap));
-    --grid-item--max-width: calc((100% - var(--total-gap-width)) / var(--grid-column-count));
-    --max-width: calc(var(--grid-column-count) * var(--grid-item--min-width) + var(--total-gap-width));
-    width: calc(min(100%,var(--max-width)));
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(max(var(--grid-item--min-width), var(--grid-item--max-width)), 1fr));
-    grid-gap: var(--grid-layout-gap);
-  }
+
+  --gap-count: calc(var(--grid-column-count) - 1);
+  --total-gap-width: calc(var(--gap-count) * var(--grid-layout-gap));
+  --grid-item--max-width: calc((100% - var(--total-gap-width)) / var(--grid-column-count));
+  --max-width: calc(var(--grid-column-count) * var(--grid-item--min-width) + var(--total-gap-width));
+  width: calc(min(100%, var(--max-width)));
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(max(var(--grid-item--min-width), var(--grid-item--max-width)), 1fr));
+  grid-gap: var(--grid-layout-gap);
+  justify-items: center !important;
+}

@@ -1,7 +1,7 @@
 import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
-const PersonCard = ({ name, subtitile }) => {
+const PersonCard = ({ name, subtitile, id }) => {
   const navigate = useNavigate();
 
   return (
@@ -80,7 +80,7 @@ const PersonCard = ({ name, subtitile }) => {
           padding: 0,
           marginTop: '12px',
         }}
-        onClick={() => navigate('/patient/1')}
+        onClick={() => navigate('/patient/' + id.id, { state: id })}
       >
         Перейти
       </Button>

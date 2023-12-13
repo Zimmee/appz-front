@@ -1,93 +1,101 @@
-.containerr{
-    width: 100%;
-    flex-direction: row;
-    display: flex;
-    gap: 24px;
-    padding-left: 24px;
-    padding-right: 24px;
-  }
+.containerr {
+  width: 100%;
+  flex-direction: row;
+  display: flex;
+  gap: 24px;
+  padding-left: 24px;
+  padding-right: 24px;
+}
 
-  .device{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 24px;
-  }
-  .table{
-    grid-area: table;
-  }
-  .chart{
-    grid-area: chart;
-  }
-  .strategy{
-    width: 50%;
-  }
+.device {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
 
-  .left{
-    width: 50%;
-  }
+.table {
+  grid-area: table;
+}
 
-  .cardd{
-    padding: 24px;
-    background-color: white;
-    border-radius: 12px;
-    border: 1px #DEE2E6 solid;
-  }
+.chart {
+  grid-area: chart;
+}
 
-  .table-striped > tbody > tr:nth-child(2n+1) > td, .table-striped > tbody > tr:nth-child(2n+1) > th {
-    background-color: #F8F9FA;
-    
- }
+.strategy {
+  width: 50%;
+}
 
- .table-striped > tbody > tr{
-    height: 80px;
- }
+.left {
+  width: 50%;
+}
 
- .table-striped > tbody > tr> td{
+.cardd {
+  padding: 24px;
+  background-color: white;
+  border-radius: 12px;
+  border: 1px #DEE2E6 solid;
+}
+
+.table-striped>tbody>tr:nth-child(2n+1)>td,
+.table-striped>tbody>tr:nth-child(2n+1)>th {
+  background-color: #F8F9FA;
+
+}
+
+.table-striped>tbody>tr {
+  height: 80px;
+  max-height: 80px;
+}
+
+.table-striped>tbody>tr>td {
   vertical-align: middle;
- }
+}
 
- .leftt{
-   width: 50%;
-   display: flex;
-   flex-direction: column;
- }
-  
- @media only screen and (max-width: 1200px) {
+.leftt {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+}
+
+@media only screen and (max-width: 1200px) {
   .containerr {
     flex-direction: column;
   }
-  .cardd{
+
+  .cardd {
     width: 100%;
   }
-  .leftt{
+
+  .leftt {
     width: 100%;
   }
-  .left{
+
+  .left {
     order: 1;
   }
 }
 
-.proggres{
+.proggres {
   width: 30%;
 }
 
-.progress-bar{
+.progress-bar {
   height: 8px;
 }
 
-.progress{
+.progress {
   height: 8px;
 }
 
-.first > .progress-bar{
+.first>.progress-bar {
   background-color: #17A2B8;
 }
 
-.second > .progress-bar{
+.second>.progress-bar {
   background-color: #FFC107;
 }
 
-.third > .progress-bar{
+.third>.progress-bar {
   background-color: #28A745;
 }

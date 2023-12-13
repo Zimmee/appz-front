@@ -4,11 +4,15 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './login.css';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { login } from '../../core/actions/appslice';
 
 function Login() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState(false)
 
   const handleUsernameChange = (e) => {
     setUsername(e.target.value);
@@ -18,12 +22,27 @@ function Login() {
     setPassword(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate('/home');
+    const response = await fetch(`http://localhost:5122/api/Auth/login`, {
+      method: "POST", headers: {
+        'Content-Type': 'application/json'
+      }, body: JSON.stringify({
+        "phoneNumber": username,
+        "password": password
+      })
+    })
 
-    // Add your login logic here
-  };
+    const json = await response.json()
+    const res = await dispatch(login(username, password))
+
+    if (response.status === 200) {
+      navigate('/home')
+    } else {
+      setError('Невірний логін або пароль')
+    }
+  }
+
 
   return (
     <div style={{ display: 'flex', flexDirection: 'row', height: '100vh' }}>
@@ -119,9 +138,20 @@ function Login() {
               type='password'
               value={password}
               onChange={handlePasswordChangee}
-              style={{ marginTop: '13px', marginBottom: '50px', fontSize: 16 }}
+              style={{ marginTop: '13px', marginBottom: error ? '8px' : '50px', fontSize: 16 }}
               placeholder='*****'
             />
+            <Form.Label
+              style={{
+                fontSize: '16px',
+                marginBottom: 0,
+                fontWeight: 600,
+                color: '#E35D6A',
+                marginBottom: '50px'
+              }}
+            >
+              {error}
+            </Form.Label>
           </Form.Group>
         </Form>
         <Button
