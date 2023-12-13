@@ -6,8 +6,9 @@ import PersonCard from '../../components/card';
 import './patient.css';
 import Card from 'react-bootstrap/Card';
 import RightPart from './right';
+import moment from 'moment';
 
-const LeftPart = ({ onRead, onInterval }) => {
+const LeftPart = ({ data, onRead, onInterval }) => {
   return (
     <div
       className='cardd'
@@ -40,57 +41,59 @@ const LeftPart = ({ onRead, onInterval }) => {
             (Беруться з інтервалом кожних 2 години)
           </div>
         </div>
-        <div
-          style={{
-            paddingLeft: 24,
-            paddingRight: 24,
-            paddingTop: 16,
-            paddingBottom: 16,
-            background: '#1AA179',
-            borderRadius: 6,
-            justifyContent: 'flex-start',
-            alignItems: 'flex-start',
-            gap: 8,
-          }}
-          onClick={onRead}
-        >
+        {onRead && <div style={{ display: 'flex', flexDirection: 'row' }}>
           <div
             style={{
-              color: 'white',
-              fontSize: 16,
-              fontFamily: 'Inter',
-              fontWeight: '600',
+              paddingLeft: 24,
+              paddingRight: 24,
+              paddingTop: 16,
+              paddingBottom: 16,
+              background: '#1AA179',
+              borderRadius: 6,
+              justifyContent: 'flex-start',
+              alignItems: 'flex-start',
+              gap: 8,
             }}
+            onClick={onRead}
           >
-            Отримати дані
+            <div
+              style={{
+                color: 'white',
+                fontSize: 16,
+                fontFamily: 'Inter',
+                fontWeight: '600',
+              }}
+            >
+              Отримати дані
+            </div>
           </div>
-        </div>
-        <div
-          onClick={onInterval}
-          style={{
-            paddingLeft: 24,
-            paddingRight: 24,
-            paddingTop: 16,
-            paddingBottom: 16,
-            background: '#1AA179',
-            borderRadius: 6,
-            justifyContent: 'flex-start',
-            alignItems: 'flex-start',
-            gap: 8,
-            marginLeft: '12px',
-          }}
-        >
           <div
+            onClick={onInterval}
             style={{
-              color: 'white',
-              fontSize: 16,
-              fontFamily: 'Inter',
-              fontWeight: '600',
+              paddingLeft: 24,
+              paddingRight: 24,
+              paddingTop: 16,
+              paddingBottom: 16,
+              background: '#1AA179',
+              borderRadius: 6,
+              justifyContent: 'flex-start',
+              alignItems: 'flex-start',
+              gap: 8,
+              marginLeft: '12px',
             }}
           >
-            Задати інтервал
+            <div
+              style={{
+                color: 'white',
+                fontSize: 16,
+                fontFamily: 'Inter',
+                fontWeight: '600',
+              }}
+            >
+              Задати інтервал
+            </div>
           </div>
-        </div>
+        </div>}
       </div>
 
       <div
@@ -101,7 +104,7 @@ const LeftPart = ({ onRead, onInterval }) => {
           backgroundColor: '#DEE2E6',
         }}
       />
-      <Table striped hover variant='default' style={{ flex: 1 }}>
+      <Table striped hover variant='default'>
         <thead>
           <tr>
             <th>Дата</th>
@@ -109,38 +112,26 @@ const LeftPart = ({ onRead, onInterval }) => {
             <th>Тиск</th>
             <th>Температура</th>
             <th>Кисень</th>
-            <th>Сон</th>
+            <th>К-сть кроків</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>1</td>
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>@mdo</td>
-            <td>@mdo</td>
-            <td>@mdo</td>
-          </tr>
-          <tr>
-            <td>1</td>
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>@mdo</td>
-            <td>@mdo</td>
-            <td>@mdo</td>
-          </tr>{' '}
-          <tr>
-            <td>1</td>
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>@mdo</td>
-            <td>@mdo</td>
-            <td>@mdo</td>
-          </tr>
+          {
+            ([...data].reverse().slice(0, 7)).map((e) => {
+              return (<tr key={moment(e.lastUpdate).format('DD.MM.YY HH:mm:ss')}>
+                <td style={{ fontWeight: 800 }}>{moment(e.lastUpdate).format('DD.MM.YY HH:mm')}</td>
+                <td>{e.pulse}</td>
+                <td>{e.systolicPressure + "/" + e.diastolicPressure}</td>
+                <td>{e.temperature}</td>
+                <td>{e.oxygen}</td>
+                <td>{e.stepsAmount}</td>
+              </tr>)
+            })
+          }
+
         </tbody>
       </Table>
     </div>
   );
 };
-
 export default LeftPart;
