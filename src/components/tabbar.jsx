@@ -1,9 +1,11 @@
 import React from 'react';
 import './tabbar.css';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const TabBar = () => {
   const navigate = useNavigate();
+  const user = useSelector((state) => state.user.user);
 
   function handleClick() {
     navigate('/login');
@@ -17,7 +19,7 @@ const TabBar = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        backgroundColor: '#1AA179',
+        backgroundColor: user.role === 'Doctor' ? '#1AA179' : '#0AA2C0',
       }}
     >
       <div

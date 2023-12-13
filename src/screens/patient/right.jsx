@@ -3,7 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './patient.css';
 
-const RightPart = () => {
+const RightPart = ({ patient }) => {
   return (
     <div className='strategy cardd'>
       <div
@@ -13,7 +13,7 @@ const RightPart = () => {
           fontWeight: '700',
         }}
       >
-        Діагноз: Хронічна серцева недостатність
+        Діагноз: {patient.diagnose}
       </div>
       <div
         style={{
@@ -32,7 +32,7 @@ const RightPart = () => {
           fontWeight: '400',
         }}
       >
-        Хронічна серцева недостатність - це стан, коли серце не здатне
+        {patient.diagnose} - це стан, коли серце не здатне
         виконувати свою основну функцію - доставку достатньої кількості крові до
         органів та тканин. Зазвичай відбувається зниження сили скорочення серця
         або збільшення обсягу шлуночків. Це може призводити до втоми, задишки
