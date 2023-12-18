@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form, Spinner } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import PersonCard from '../../components/card';
@@ -12,24 +12,32 @@ function List() {
   const user = useSelector((state) => state.user.user);
   const [patients, setPatients] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(false);
 
 
   useEffect(() => {
     (async () => {
-      if (!user) return
+      try {
+        if (!user) return
+        setLoading(true)
+        const response = await fetch(`http://localhost:5122/${user.role === 'Doctor' ? 'Patient' : 'Patron'}?` + new URLSearchParams({
+          doctorId: user.userId,
+          ...(searchQuery && { searchQuery })
+        }), {
+          method: "GET", headers: {
+            'Content-Type': 'application/json'
+          },
+        })
+        if (response.status === 404) setPatients([])
+        if (response.status !== 200) return
 
-      const response = await fetch(`http://localhost:5122/${user.role === 'Doctor' ? 'Patient' : 'Patron'}?` + new URLSearchParams({
-        doctorId: user.userId,
-        ...(searchQuery && { searchQuery })
-      }), {
-        method: "GET", headers: {
-          'Content-Type': 'application/json'
-        },
-      })
-      if (response.status === 404) setPatients([])
-      if (response.status !== 200) return
-
-      setPatients(await response.json())
+        setPatients(await response.json())
+        setLoading(false)
+      } catch (error) {
+        setLoading(false)
+      } finally {
+        setLoading(false)
+      }
     })()
   }, [user, searchQuery])
 
@@ -126,7 +134,11 @@ function List() {
         />
       </div>
 
-      {patients.length === 0 && <div style={{ fontSize: 24, fontFamily: 'Inter', fontWeight: '600', color: '#212529', alignSelf: 'center' }}>Нічого не знайдено</div>}
+      {loading && <Spinner animation="border" role="status">
+        <span className="visually-hidden">Loading...</span>
+      </Spinner>}
+
+      {(patients.length === 0 && !loading) && <div style={{ fontSize: 24, fontFamily: 'Inter', fontWeight: '600', color: '#212529', alignSelf: 'center' }}>Нічого не знайдено</div>}
 
       <div
         style={{

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Form, Table, Modal, ProgressBar } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
@@ -7,33 +7,97 @@ import './patient.css';
 import Card from 'react-bootstrap/Card';
 import RightPart from './right';
 import LeftPart from './left';
+import { useParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import moment from 'moment';
+import TimePicker from 'react-bootstrap-time-picker';
+
+
 
 function Patient() {
   const [show, setShow] = useState(false);
   const [showInterval, setShowInterval] = useState(false);
   const [progress, setProgress] = useState(0);
+  let { id } = useParams();
+  const [physical, setPhysical] = useState([]);
+  const { state } = useLocation();
+  const user = useSelector((state) => state.user.user);
+  const [readDataState, setReadDataState] = useState('reading');
+  const [interval, setIntervalBLEAT] = useState();
+  const [time, setTime] = useState();
 
-  const handleClose = () => setShow(false);
+  const handleClose = () => {
+    setReadDataState('reading');
+    read()
+    return setShow(false);
+  };
   const handleCloseInterval = () => setShowInterval(false);
+
+  const read = (async () => {
+    if (!id) return
+
+    const response = await fetch('http://localhost:5122/Data/patients/physical/' + id, {
+      method: "GET", headers: {
+        'Content-Type': 'application/json'
+      },
+    })
+    if (response.status === 404) setPhysical([])
+    if (response.status !== 200) return
+
+
+    setPhysical(await response.json())
+  })
+
+  const setIntervall = (async () => {
+    if (!id) return
+
+    var today = new Date();
+
+    const hours = Math.floor(time / 3600); // => 4 => the times 3 fits into 13  
+    const minutes = (time % 3600) / 60;
+
+    var myToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours + 2, minutes, 0);
+
+    console.log(myToday)
+
+    const response = await fetch(`http://localhost:5122/Patient?patientId=${id}&interval=${interval}&startTime=${myToday.toJSON().slice(0, 19).replace('T', ' ')}`, {
+      method: "PUT", headers: {
+        'Content-Type': 'application/json'
+      },
+    })
+    if (response.status !== 200) handleCloseInterval()
+
+
+    // setPhysical(await response.json())
+  })
+
+  useEffect(() => {
+    read()
+  }, [id])
 
   const readData = async () => {
     setShow(true);
     setProgress(0);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const response = await fetch('http://localhost:5122/Data?patientID=' + id, {
+      method: "POST", headers: {
+        'Content-Type': 'application/json'
+      },
+    })
+
 
     //set timer for 5 seconds and update progress each render
     const timer = setInterval(() => {
       setProgress((oldProgress) => {
         if (oldProgress === 300) {
+          setReadDataState(response.status === 200 ? 'success' : 'error')
           clearInterval(timer);
         }
         const diff = 5;
         return Math.min(oldProgress + diff, 300);
       });
-    }, 100);
+    }, 300);
   };
-
-  console.log(progress, progress - 100, progress - 200);
 
   return (
     <div
@@ -88,7 +152,16 @@ function Patient() {
                 fontWeight: '700',
               }}
             >
-              anna bleyt
+              {state.name + " " + state.surname}
+            </div>
+            <div
+              style={{
+                fontSize: 28,
+                fontFamily: 'Inter',
+                fontWeight: '700',
+              }}
+            >
+              {moment(state.dateOfBirth).format('DD.MM.YYYY')}
             </div>
           </div>
         </div>
@@ -96,7 +169,7 @@ function Patient() {
 
       <div className='containerr'>
         <div className='leftt'>
-          <div className='cardd device'>
+          {user.role === 'Patron' && <div className='cardd device'>
             <div style={{}}>
               <div
                 style={{
@@ -106,7 +179,7 @@ function Patient() {
                   wordWrap: 'break-word',
                 }}
               >
-                Xiaomi mi bend 5
+                {state.deviceModel}
               </div>
               <div
                 style={{
@@ -144,13 +217,14 @@ function Patient() {
                 Налаштування
               </div>
             </div>
-          </div>
+          </div>}
           <LeftPart
-            onRead={readData}
+            data={physical}
+            onRead={user.role === "Doctor" ? readData : null}
             onInterval={() => setShowInterval(true)}
           />
         </div>
-        <RightPart />
+        <RightPart patient={state} />
       </div>
 
       <Modal
@@ -164,7 +238,23 @@ function Patient() {
           <Modal.Title>Отримання даних</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div
+          {readDataState === 'error' ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <img src={require('../../assets/bullseye.png')} width={80} height={80} />
+              <div style={{ textAlign: 'center', color: 'black', fontSize: 16, fontFamily: 'Inter', fontWeight: '600', marginTop: '11px', marginBottom: '11px' }}>Невдалося встановлення з’єднання з девайсом пацієнта</div>
+              <div style={{ textAlign: 'center', color: '#A2ABB5', fontSize: 15, fontFamily: 'Inter', fontWeight: '500', }}>Зв’яжіться з патроном пацієнта для вирішення проблеми підключення</div>
+            </div>
+          ) : <div />}
+
+          {readDataState === 'success' ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <img src={require('../../assets/check-circle.png')} width={80} height={80} />
+              <div style={{ textAlign: 'center', color: 'black', fontSize: 16, fontFamily: 'Inter', fontWeight: '600', marginTop: '11px', marginBottom: '11px' }}>Дані успішно отримано</div>
+              <div style={{ textAlign: 'center', color: '#A2ABB5', fontSize: 15, fontFamily: 'Inter', fontWeight: '500', }}>Орієнтований час оновлення даних 2хв</div>
+            </div>
+          ) : <div />}
+
+          {readDataState === 'reading' ? <div
             style={{
               display: 'flex',
               gap: '2.5%',
@@ -222,9 +312,29 @@ function Patient() {
                 className='third'
               />
             </div>
-          </div>
+          </div> : <div />}
         </Modal.Body>
-        <Modal.Footer />
+        <Modal.Footer >
+          {readDataState === 'error' ? (
+            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+              <Button variant='secondary' onClick={handleClose} style={{ marginRight: '12px' }}>
+                Закрити
+              </Button>
+              <Button variant='danger' onClick={handleClose}>
+                Надіслати повідомлення про помилку
+              </Button>
+            </div>
+          ) : <div />}
+
+          {readDataState === 'success' ? (
+            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+
+              <Button variant='success' onClick={handleClose}>
+                Переглянути
+              </Button>
+            </div>
+          ) : <div />}
+        </Modal.Footer >
       </Modal>
 
       <Modal
@@ -237,14 +347,29 @@ function Patient() {
         <Modal.Header closeButton>
           <Modal.Title>Інтервал зчитування даних</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Woohoo, you are reading this text in a modal!</Modal.Body>
+        <Modal.Body><div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+            <div style={{ color: 'black', fontSize: 16, fontFamily: 'Inter', fontWeight: '400' }}>Інтервал</div>
+            <Form.Select value={interval} onChange={(e) => setIntervalBLEAT(e.target.value)}>
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((item) => <option>{item}</option>)}
+            </Form.Select>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+            <div style={{ color: 'black', fontSize: 16, fontFamily: 'Inter', fontWeight: '400' }}>Початковий час</div>
+            <TimePicker start="01:00" end="24:00" step={1} format={24} value={time} onChange={(e) => setTime(e)} />
+
+          </div>
+        </div>
+        </Modal.Body>
         <Modal.Footer>
-          <Button variant='secondary' onClick={handleCloseInterval}>
-            Close
-          </Button>
-          <Button variant='primary' onClick={handleCloseInterval}>
-            Save Changes
-          </Button>
+          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+            <Button variant='secondary' onClick={handleCloseInterval} style={{ marginRight: '12px' }}>
+              Закрити
+            </Button>
+            <Button variant='success' onClick={setIntervall}>
+              Зберегти зміни
+            </Button>
+          </div>
         </Modal.Footer>
       </Modal>
     </div>
